@@ -24,7 +24,13 @@ resilience4j:
     instances:
       redisRateLimiter:
         failure-rate-threshold: 50
+        sliding-window-type: COUNT_BASED
         sliding-window-size: 5
         minimum-number-of-calls: 5
         wait-duration-in-open-state: 10s
         permitted-number-of-calls-in-half-open-state: 2
+
+  timelimiter:
+    instances:
+      redisRateLimiter:
+        timeout-duration: 500ms
