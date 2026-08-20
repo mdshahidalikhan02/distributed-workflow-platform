@@ -1,5 +1,7 @@
 package com.job_processing.distributed_platform.ratelimiter;
 
+import com.job_processing.distributed_platform.api.exception.RateLimiterUnavailableException;
+import com.job_processing.distributed_platform.infrastructure.redis.RedisRateLimiterClient;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +25,7 @@ public class RateLimitService implements RateLimiter {
         return redisRateLimiterClient.isAllowed(clientId);
     }
 
-    private boolean rateLimitFallback(
+    boolean rateLimitFallback(
             String clientId,
             Throwable throwable) {
 
