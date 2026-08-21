@@ -9,26 +9,26 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class RateLimitServiceTest {
+class RedisFIxedWinRateLimitServiceTest {
 
     private final RedisRateLimiterClient redisRateLimiterClient =
             mock(RedisRateLimiterClient.class);
 
-    private final RateLimitService rateLimitService =
-            new RateLimitService(redisRateLimiterClient);
+    private final RedisFIxedWinRateLimitService redisFIxedWinRateLimitService =
+            new RedisFIxedWinRateLimitService(redisRateLimiterClient);
 
     @Test
     void shouldDelegateToRedisClient() {
         when(redisRateLimiterClient.isAllowed("client-a")).thenReturn(true);
 
-        assertTrue(rateLimitService.isAllowed("client-a"));
+        assertTrue(redisFIxedWinRateLimitService.isAllowed("client-a"));
     }
 
     @Test
     void shouldExposeFallbackException() {
         assertThrows(
                 RateLimiterUnavailableException.class,
-                () -> rateLimitService.rateLimitFallback(
+                () -> redisFIxedWinRateLimitService.rateLimitFallback(
                         "client-a",
                         new RuntimeException("redis unavailable")
                 )

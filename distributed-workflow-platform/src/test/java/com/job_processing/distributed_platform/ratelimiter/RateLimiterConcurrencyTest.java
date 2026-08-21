@@ -19,8 +19,8 @@ class RateLimiterConcurrencyTest {
     void shouldHandleConcurrentCallsThroughService() throws InterruptedException {
         RedisRateLimiterClient redisRateLimiterClient =
                 mock(RedisRateLimiterClient.class);
-        RateLimitService rateLimitService =
-                new RateLimitService(redisRateLimiterClient);
+        RedisFIxedWinRateLimitService redisFIxedWinRateLimitService =
+                new RedisFIxedWinRateLimitService(redisRateLimiterClient);
         AtomicInteger allowedCalls = new AtomicInteger();
 
         when(redisRateLimiterClient.isAllowed("client-a"))
@@ -37,7 +37,7 @@ class RateLimiterConcurrencyTest {
             executorService.submit(() -> {
                 ready.countDown();
                 start.await();
-                if (rateLimitService.isAllowed("client-a")) {
+                if (redisFIxedWinRateLimitService.isAllowed("client-a")) {
                     allowed.incrementAndGet();
                 }
                 done.countDown();

@@ -13,11 +13,19 @@ rate-limiter:
   limit: 5
   window-seconds: 60
 
+cache:
+  cache-l1:
+    ttl-seconds: 30
+    maximum-size: 1000
+
+  cache-l2:
+    ttl-seconds: 300
+
 management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,circuitbreakers
+        include: health,info,metrics,circuitbreakerevents
 
 resilience4j:
   circuitbreaker:
@@ -29,8 +37,12 @@ resilience4j:
         minimum-number-of-calls: 5
         wait-duration-in-open-state: 10s
         permitted-number-of-calls-in-half-open-state: 2
+        register-health-indicator: true
+        event-consumer-buffer-size: 20
 
-  timelimiter:
-    instances:
-      redisRateLimiter:
-        timeout-duration: 500ms
+      redisCache:
+          failure-rate-threshold: 50
+          sliding-window-size: 5
+          minimum-number-of-calls: 5
+          wait-duration-in-open-state: 10s
+          permitted-number-of-calls-in-half-open-state: 2

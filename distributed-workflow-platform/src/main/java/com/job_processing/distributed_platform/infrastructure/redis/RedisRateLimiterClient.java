@@ -1,6 +1,7 @@
 package com.job_processing.distributed_platform.infrastructure.redis;
 
 import com.job_processing.distributed_platform.ratelimiter.RateLimiterProperties;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -27,6 +28,8 @@ public class RedisRateLimiterClient {
         script.setResultType(Long.class);
         this.rateLimitScript = script;
     }
+
+    @CircuitBreaker(name = "redisRateLimiter", fallbackMethod = "redisFallback")
 
     public boolean isAllowed(String clientId) {
         String key = "rate_limit:" + clientId;
