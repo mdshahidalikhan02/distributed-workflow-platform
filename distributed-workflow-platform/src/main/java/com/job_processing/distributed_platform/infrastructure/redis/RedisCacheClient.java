@@ -1,7 +1,9 @@
 package com.job_processing.distributed_platform.infrastructure.redis;
 
 import com.job_processing.distributed_platform.cache.model.CachedJob;
+import com.job_processing.distributed_platform.api.exception.CacheUnavailableException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -13,12 +15,16 @@ public class RedisCacheClient {
     private final RedisTemplate<String, CachedJob> redisTemplate;
 
     public RedisCacheClient(
+            @Qualifier("cachedJobRedisTemplate")
             RedisTemplate<String, CachedJob> redisTemplate) {
 
         this.redisTemplate = redisTemplate;
     }
 
-    @CircuitBreaker(name = "redisCache")
+    @CircuitBreaker(
+            name = "redisCache",
+            fallbackMethod = "getFallback"
+    )
     public CachedJob get(String key) {
 
         return redisTemplate
@@ -26,7 +32,10 @@ public class RedisCacheClient {
                 .get(key);
     }
 
-    @CircuitBreaker(name = "redisCache")
+    @CircuitBreaker(
+            name = "redisCache",
+            fallbackMethod = "putFallback"
+    )
     public void put(
             String key,
             CachedJob cachedJob,
@@ -37,9 +46,44 @@ public class RedisCacheClient {
                 .set(key, cachedJob, ttl);
     }
 
-    @CircuitBreaker(name = "redisCache")
+    @CircuitBreaker(
+            name = "redisCache",
+            fallbackMethod = "deleteFallback"
+    )
     public void delete(String key) {
 
         redisTemplate.delete(key);
+    }
+
+    private CachedJob getFallback(
+            String key,
+            Throwable throwable) {
+
+        throw new CacheUnavailableException(
+                "Redis cache is unavailable",
+                throwable
+        );
+    }
+
+    private void putFallback(
+            String key,
+            CachedJob cachedJob,
+            Duration ttl,
+            Throwable throwable) {
+
+        throw new CacheUnavailableException(
+                "Redis cache is unavailable",
+                throwable
+        );
+    }
+
+    private void deleteFallback(
+            String key,
+            Throwable throwable) {
+
+        throw new CacheUnavailableException(
+                "Redis cache is unavailable",
+                throwable
+        );
     }
 }

@@ -2,6 +2,7 @@ package com.job_processing.distributed_platform.infrastructure.redis;
 
 import com.job_processing.distributed_platform.ratelimiter.RateLimiterProperties;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -18,10 +19,10 @@ public class RedisRateLimiterClient {
     private final RedisScript<Long> rateLimitScript;
 
     public RedisRateLimiterClient(
-            RedisTemplate<String, String> redisTemplate,
+            @Qualifier("redisTemplate")
+            RedisTemplate<String, String> redisTemplateRate,
             RateLimiterProperties properties) {
-
-        this.redisTemplate = redisTemplate;
+        this.redisTemplate = redisTemplateRate;
         this.properties = properties;
         DefaultRedisScript<Long> script = new DefaultRedisScript<>();
         script.setLocation(new ClassPathResource("redis/rate-limiter.lua"));
