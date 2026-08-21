@@ -9,6 +9,17 @@ spring:
       connect-timeout: 500ms
       timeout: 500ms
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/workflow
+    username: workflow
+    password: workflow
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+
 rate-limiter:
   limit: 5
   window-seconds: 60
